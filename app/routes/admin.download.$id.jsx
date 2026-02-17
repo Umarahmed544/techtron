@@ -1,4 +1,3 @@
-// import fs from "fs/promises";
 import fs from "fs";
 import path from "path";
 import archiver from "archiver";

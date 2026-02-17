@@ -13,8 +13,6 @@ export const loader = async ({ request }) => {
   const city = url.searchParams.get("city");
   const postcode = url.searchParams.get("postcode");
 
-  // if (!city) return { success: false, message: "City is required" };
-  // if (!postcode) return { success: false, message: "Postcode is required" };
   if (!city || !postcode) {
     return new Response(
       JSON.stringify({
@@ -34,7 +32,7 @@ export const loader = async ({ request }) => {
     ...(postcode && {
       postcode: {
         contains: postcode,
-        // mode: "insensitive",
+        mode: "insensitive",
       },
     }),
   };
@@ -54,17 +52,6 @@ export const loader = async ({ request }) => {
     },
   });
 
-  // return {
-  //   success: true,
-  //   count: installers.length,
-  //   installers: installers.map((installer) => ({
-  //     name: installer.fullName,
-  //     company: installer.companyName,
-  //     contact: installer.contactPhone,
-  //     serviceAreas: `${installer.city} ${installer.postcode}`,
-  //     ozevStatus: "Approved",
-  //   })),
-  // };
   return new Response(
     JSON.stringify({
       success: true,

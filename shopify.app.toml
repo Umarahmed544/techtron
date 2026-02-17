@@ -27,6 +27,6 @@ scopes = "write_products,write_app_proxy,write_online_store_navigation"
 redirect_urls = ["https://techtron.onrender.com/auth/callback", "https://techtron.onrender.com/auth/shopify/callback", "https://techtron.onrender.com/api/auth/callback"]
 
 [app_proxy]
-url = "/api"
+url = "https://techtron.onrender.com"
 prefix = "apps"
 subpath = "techtron"

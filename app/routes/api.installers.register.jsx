@@ -4,11 +4,8 @@ import path from "path";
 import { cwd } from "node:process";
 import { Buffer } from "buffer";
 
-// 👇 Add this at the TOP of the file
-export const unstable_shouldSkipCSRFCheck = () => true;
-
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const ALLOWED_TYPES = ["application/pdf", "image/jpeg", "image/png"];
+const ALLOWED_TYPES = ["application/pdf", "image/jpeg", "image/jpg"];
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "https://techtron-8435.myshopify.com",
@@ -17,10 +14,9 @@ const corsHeaders = {
 };
 
 export const action = async ({ request }) => {
-  // /* ✅ Handle preflight */
-  // if (request.method === "OPTIONS") {
-  //   return new Response(null, { status: 204, headers: corsHeaders });
-  // }
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: corsHeaders });
+  }
 
   if (request.headers.get("sec-fetch-dest") === "document") {
     throw new Response("Forbidden", { status: 403 });
@@ -127,13 +123,13 @@ export const action = async ({ request }) => {
     const buffer = Buffer.from(await file.arrayBuffer());
     const filePath = path.join(uploadDir, filename);
     await fs.writeFile(filePath, buffer);
-    return `/uploads/${installer.id}/${filename}`;
+    return `/uploads/${installer.id}/${filename}.${file.type.split("/")[1]}`;
   };
 
   const certificateUrls = {
-    edition18: await saveFile(edition18, "edition18.pdf"),
-    ozev: await saveFile(ozevCert, "ozev.pdf"),
-    insurance: await saveFile(insurance, "insurance.pdf"),
+    edition18: await saveFile(edition18, "edition18"),
+    ozev: await saveFile(ozevCert, "ozev"),
+    insurance: await saveFile(insurance, "insurance"),
   };
 
   // 4️⃣ Update installer with certificate URLs

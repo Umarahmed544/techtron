@@ -1,12 +1,9 @@
-import { generateAdminToken } from "../utils/adminJwt.server";
+import { generateAdminToken, validateAdmin } from "../utils/adminJwt.server";
 
 export const action = async ({ request }) => {
   const { email, password } = await request.json();
 
-  if (
-    email !== import.meta.env.VITE_ADMIN_EMAIL ||
-    password !== import.meta.env.VITE_ADMIN_PASSWORD
-  ) {
+  if (!validateAdmin(email, password)) {
     return new Response(JSON.stringify({ message: "Invalid credentials" }), {
       status: 401,
     });

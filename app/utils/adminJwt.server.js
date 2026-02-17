@@ -23,3 +23,10 @@ export function requireAdminJwt(request) {
     throw new Response("Invalid token", { status: 401 });
   }
 }
+
+export function validateAdmin(email, password) {
+  return (
+    email === process.env.ADMIN_EMAIL &&
+    password === process.env.ADMIN_PASSWORD
+  );
+}
