@@ -10,11 +10,11 @@ export const unstable_shouldSkipCSRFCheck = () => true;
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_TYPES = ["application/pdf", "image/jpeg", "image/png"];
 
-// const corsHeaders = {
-//   "Access-Control-Allow-Origin": "https://techtron-8435.myshopify.com",
-//   "Access-Control-Allow-Methods": "POST, OPTIONS",
-//   "Access-Control-Allow-Headers": "Content-Type",
-// };
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "https://techtron-8435.myshopify.com",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
 
 export const action = async ({ request }) => {
   // /* ✅ Handle preflight */
@@ -29,6 +29,7 @@ export const action = async ({ request }) => {
   if (request.method !== "POST") {
     return new Response(JSON.stringify({ message: "Method not allowed" }), {
       status: 405,
+      headers: corsHeaders,
     });
   }
 
@@ -40,7 +41,7 @@ export const action = async ({ request }) => {
         success: false,
         message: "Invalid Content-Type. Use multipart/form-data.",
       }),
-      { status: 415 },
+      { status: 415, headers: corsHeaders },
     );
   }
 
@@ -77,7 +78,7 @@ export const action = async ({ request }) => {
         success: false,
         message: "All fields and documents are required",
       }),
-      { status: 400 },
+      { status: 400, headers: corsHeaders },
     );
   }
 
@@ -98,7 +99,7 @@ export const action = async ({ request }) => {
   } catch (err) {
     return new Response(
       JSON.stringify({ success: false, message: err.message }),
-      { status: 400 },
+      { status: 400, headers: corsHeaders },
     );
   }
 
@@ -149,6 +150,6 @@ export const action = async ({ request }) => {
       message: "Installer registered successfully. Awaiting admin approval.",
       installerId: installer.id,
     }),
-    { status: 201 },
+    { status: 201, headers: corsHeaders },
   );
 };
