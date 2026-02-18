@@ -36,7 +36,7 @@ export default function AdminDashboard() {
   const { installers } = useLoaderData();
   const revalidator = useRevalidator();
   const [rows, setRows] = useState(installers);
-  const [notification, setNotification] = useState(null);
+  // const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     if (!requireAdmin()) {
@@ -56,12 +56,12 @@ export default function AdminDashboard() {
       if (data.event === "installer.created") {
         console.log("New installer arrived", data);
 
-        setNotification(
-          `🆕 New installer:)`,
-        );
+        // setNotification(
+        //   `🆕 New installer:)`,
+        // );
 
-        // optional: auto-clear after 5s
-        setTimeout(() => setNotification(null), 5000);
+        // // optional: auto-clear after 5s
+        // setTimeout(() => setNotification(null), 5000);
 
         // 🔄 Re-fetch loader data
         revalidator.revalidate();
@@ -116,11 +116,11 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      {notification && (
+      {/* {notification && (
         <div className="fixed top-4 right-4 z-50 bg-green-600 text-white px-4 py-3 rounded shadow-lg animate-pulse">
           {notification}
         </div>
-      )}
+      )} */}
 
       <h1 className="text-2xl font-semibold mb-6">Installer Registrations</h1>
 
