@@ -21,7 +21,7 @@
 //   return new Response(JSON.stringify({ success: true }), { status: 200 });
 // };
 
-import { broadcast } from "../../admin.events";
+import { broadcast } from "../routes/admin.events";
 import { validateWebhook } from "../utils/adminEvents.server";
 
 export async function action({ request }) {
