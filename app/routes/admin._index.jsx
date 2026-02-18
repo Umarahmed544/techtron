@@ -48,12 +48,20 @@ export default function AdminDashboard() {
   /* 🔔 SSE LISTENER */
   useEffect(() => {
     const es = new EventSource("/api/admin/events");
+    console.log("Connecting to admin SSE...", es);
 
     es.onmessage = (event) => {
       const data = JSON.parse(event.data);
 
       if (data.event === "installer.created") {
         console.log("New installer arrived", data);
+
+        setNotification(
+          `🆕 New installer: ${data.installer.fullName} (${data.installer.city})`,
+        );
+
+        // optional: auto-clear after 5s
+        setTimeout(() => setNotification(null), 5000);
 
         // 🔄 Re-fetch loader data
         revalidator.revalidate();
@@ -72,26 +80,26 @@ export default function AdminDashboard() {
     setRows(installers);
   }, [installers]);
 
-  // Show toast notification for new installers
-  useEffect(() => {
-    const es = new EventSource("/admin/events");
+  // // Show toast notification for new installers
+  // useEffect(() => {
+  //   const es = new EventSource("/admin/events");
 
-    es.addEventListener("installer.created", (e) => {
-      const installer = JSON.parse(e.data);
+  //   es.addEventListener("installer.created", (e) => {
+  //     const installer = JSON.parse(e.data);
 
-      setNotification(
-        `🆕 New installer: ${installer.fullName} (${installer.city})`,
-      );
+  //     setNotification(
+  //       `🆕 New installer: ${installer.fullName} (${installer.city})`,
+  //     );
 
-      // optional: auto-clear after 5s
-      setTimeout(() => setNotification(null), 5000);
+  //     // optional: auto-clear after 5s
+  //     setTimeout(() => setNotification(null), 5000);
 
-      // optional: refresh list instantly
-      window.location.reload();
-    });
+  //     // optional: refresh list instantly
+  //     window.location.reload();
+  //   });
 
-    return () => es.close();
-  }, []);
+  //   return () => es.close();
+  // }, []);
 
   async function toggleStatus(id, current) {
     const next = current === "approved" ? "rejected" : "approved";
