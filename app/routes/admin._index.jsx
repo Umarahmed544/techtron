@@ -52,7 +52,7 @@ export default function AdminDashboard() {
 
     es.onmessage = (event) => {
       const data = JSON.parse(event.data);
-
+      console.log("Received SSE event:", data);
       if (data.event === "installer.created") {
         console.log("New installer arrived", data);
 
