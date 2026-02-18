@@ -1,8 +1,6 @@
 import jwt from "jsonwebtoken";
 
 export function generateAdminToken(payload) {
-  console.log("Generating admin token with payload:", payload);
-  console.log("Generating admin token with payload22:", process.env.VITE_JWT_SECRET);
   return jwt.sign(payload, process.env.VITE_JWT_SECRET, {
     expiresIn: "1h",
   });
@@ -26,7 +24,7 @@ export function requireAdminJwt(request) {
 
 export function validateAdmin(email, password) {
   return (
-    email === process.env.ADMIN_EMAIL &&
-    password === process.env.ADMIN_PASSWORD
+    email === process.env.VITE_ADMIN_EMAIL &&
+    password === process.env.VITE_ADMIN_PASSWORD
   );
 }

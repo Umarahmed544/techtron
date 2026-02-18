@@ -8,7 +8,6 @@ export const action = async ({ request }) => {
       status: 401,
     });
   }
-  console.log("Admin logged in", email, "with password", password);
   const token = generateAdminToken({ role: "admin", email });
 
   return {

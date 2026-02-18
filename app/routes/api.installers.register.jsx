@@ -121,7 +121,7 @@ export const action = async ({ request }) => {
   // 3️⃣ Save files
   const saveFile = async (file, filename) => {
     const buffer = Buffer.from(await file.arrayBuffer());
-    const filePath = path.join(uploadDir, filename);
+    const filePath = path.join(uploadDir, `${filename}.${file.type.split("/")[1]}`);
     await fs.writeFile(filePath, buffer);
     return `/uploads/${installer.id}/${filename}.${file.type.split("/")[1]}`;
   };

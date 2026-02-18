@@ -1,36 +1,56 @@
 import fs from "fs";
 import path from "path";
 import archiver from "archiver";
+import { PassThrough } from "stream";
 
-export async function loader({ request, params }) {
-  console.log("Loader called with request:", request);
+export async function loader({ params }) {
   const installerId = params.id;
   const uploadsDir = path.resolve("public/uploads", installerId);
 
-  const files = [
-    { name: "edition18.pdf", label: "18th-edition.pdf" },
-    { name: "insurance.pdf", label: "insurance.pdf" },
-    { name: "ozev.pdf", label: "ozev.pdf" },
+  // Document base names + output labels
+  const documents = [
+    { base: "edition18", label: "18th-edition" },
+    { base: "insurance", label: "insurance" },
+    { base: "ozev", label: "ozev" },
   ];
 
+  // Supported extensions (order matters → priority)
+  const extensions = [".pdf", ".jpg", ".jpeg", ".png"];
+
   const archive = archiver("zip", { zlib: { level: 9 } });
+  const passThrough = new PassThrough();
+
+  archive.pipe(passThrough);
 
   const stream = new ReadableStream({
     start(controller) {
-      archive.on("data", (chunk) => controller.enqueue(chunk));
-      archive.on("end", () => controller.close());
-      archive.on("error", (err) => controller.error(err));
-
-      for (const file of files) {
-        const filePath = path.join(uploadsDir, file.name);
-        if (fs.existsSync(filePath)) {
-          archive.file(filePath, { name: file.label });
-        }
-      }
-
-      archive.finalize();
+      passThrough.on("data", (chunk) => controller.enqueue(chunk));
+      passThrough.on("end", () => controller.close());
+      passThrough.on("error", (err) => controller.error(err));
     },
   });
+
+  let fileAdded = false;
+
+  for (const doc of documents) {
+    for (const ext of extensions) {
+      const filePath = path.join(uploadsDir, `${doc.base}${ext}`);
+
+      if (fs.existsSync(filePath)) {
+        archive.file(filePath, {
+          name: `${doc.label}${ext}`, // keep correct extension
+        });
+        fileAdded = true;
+        break; // stop after first match
+      }
+    }
+  }
+
+  if (!fileAdded) {
+    throw new Response("No documents found", { status: 404 });
+  }
+
+  await archive.finalize();
 
   return new Response(stream, {
     headers: {
