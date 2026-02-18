@@ -8,7 +8,7 @@ export function validateWebhook(secret) {
 export async function notifyAdmin(installer) {
   console.log("Notifying admin of new installer:", installer.id);
   console.log("process.env.ADMIN_WEBHOOK_URL:", process.env.ADMIN_WEBHOOK_URL);
-  await fetch("https://oasis-beverly-rpg-inspired.trycloudflare.com/api/admin/webhooks/installer", {
+  await fetch(process.env.ADMIN_WEBHOOK_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
