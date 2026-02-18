@@ -36,6 +36,7 @@ export default function AdminDashboard() {
   const { installers } = useLoaderData();
   const revalidator = useRevalidator();
   const [rows, setRows] = useState(installers);
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     if (!requireAdmin()) {
@@ -71,6 +72,27 @@ export default function AdminDashboard() {
     setRows(installers);
   }, [installers]);
 
+  // Show toast notification for new installers
+  useEffect(() => {
+    const es = new EventSource("/admin/events");
+
+    es.addEventListener("installer.created", (e) => {
+      const installer = JSON.parse(e.data);
+
+      setNotification(
+        `🆕 New installer: ${installer.fullName} (${installer.city})`,
+      );
+
+      // optional: auto-clear after 5s
+      setTimeout(() => setNotification(null), 5000);
+
+      // optional: refresh list instantly
+      window.location.reload();
+    });
+
+    return () => es.close();
+  }, []);
+
   async function toggleStatus(id, current) {
     const next = current === "approved" ? "rejected" : "approved";
 
@@ -86,6 +108,12 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
+      {notification && (
+        <div className="fixed top-4 right-4 z-50 bg-green-600 text-white px-4 py-3 rounded shadow-lg animate-pulse">
+          {notification}
+        </div>
+      )}
+
       <h1 className="text-2xl font-semibold mb-6">Installer Registrations</h1>
 
       <div className="bg-white rounded shadow divide-y">
