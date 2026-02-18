@@ -56,9 +56,7 @@ export default function AdminDashboard() {
       if (data.event === "installer.created") {
         console.log("New installer arrived", data);
 
-        setNotification(
-          `🆕 New installer:)`,
-        );
+        setNotification(`🆕 New installer: ${data.installer.fullName}`);
 
         // optional: auto-clear after 5s
         setTimeout(() => setNotification(null), 5000);
