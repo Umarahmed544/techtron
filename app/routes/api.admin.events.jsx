@@ -3,11 +3,9 @@ import { adminClients } from "../utils/adminEvents.server";
 export const loader = () => {
   const stream = new ReadableStream({
     start(controller) {
-        console.log("Admin client connected to SSE");
+      console.log("Admin client connected to SSE");
       const send = (data) => {
-        controller.enqueue(
-          `data: ${JSON.stringify(data)}\n\n`
-        );
+        controller.enqueue(`data: ${JSON.stringify(data)}\n\n`);
       };
 
       adminClients.add(send);

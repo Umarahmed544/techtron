@@ -57,7 +57,7 @@ export default function AdminDashboard() {
         console.log("New installer arrived", data);
 
         setNotification(
-          `🆕 New installer: ${data.installer.fullName} (${data.installer.city})`,
+          `🆕 New installer:)`,
         );
 
         // optional: auto-clear after 5s
