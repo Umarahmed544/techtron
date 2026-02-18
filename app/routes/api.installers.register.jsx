@@ -3,6 +3,7 @@ import fs from "fs/promises";
 import path from "path";
 import { cwd } from "node:process";
 import { Buffer } from "buffer";
+import { notifyAdmin } from "../utils/adminEvents.server";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_TYPES = ["application/pdf", "image/jpeg", "image/jpg"];
@@ -121,7 +122,10 @@ export const action = async ({ request }) => {
   // 3️⃣ Save files
   const saveFile = async (file, filename) => {
     const buffer = Buffer.from(await file.arrayBuffer());
-    const filePath = path.join(uploadDir, `${filename}.${file.type.split("/")[1]}`);
+    const filePath = path.join(
+      uploadDir,
+      `${filename}.${file.type.split("/")[1]}`,
+    );
     await fs.writeFile(filePath, buffer);
     return `/uploads/${installer.id}/${filename}.${file.type.split("/")[1]}`;
   };
@@ -139,6 +143,13 @@ export const action = async ({ request }) => {
       certificateUrls: JSON.stringify(certificateUrls),
     },
   });
+
+  // 5️⃣ Notify admin (non-blocking)
+  try {
+    await notifyAdmin(installer);
+  } catch (err) {
+    console.error("Admin webhook failed", err);
+  }
 
   return new Response(
     JSON.stringify({

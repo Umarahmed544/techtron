@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLoaderData } from "react-router";
+import { useLoaderData, useRevalidator } from "react-router";
 import { requireAdmin } from "../utils/adminAuth";
 import prisma from "../db.server";
 
@@ -8,9 +8,10 @@ export async function loader() {
     orderBy: { createdAt: "desc" },
   });
 
-  return new Response(JSON.stringify({ installers }), {
-    headers: { "Content-Type": "application/json" },
-  });
+  return { installers };
+  // return new Response(JSON.stringify({ installers }), {
+  //   headers: { "Content-Type": "application/json" },
+  // });
 }
 
 export async function action({ request }) {
@@ -33,6 +34,7 @@ export async function action({ request }) {
 
 export default function AdminDashboard() {
   const { installers } = useLoaderData();
+  const revalidator = useRevalidator();
   const [rows, setRows] = useState(installers);
 
   useEffect(() => {
@@ -41,6 +43,33 @@ export default function AdminDashboard() {
       return;
     }
   }, []);
+
+  /* 🔔 SSE LISTENER */
+  useEffect(() => {
+    const es = new EventSource("/api/admin/events");
+
+    es.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      if (data.event === "installer.created") {
+        console.log("New installer arrived", data);
+
+        // 🔄 Re-fetch loader data
+        revalidator.revalidate();
+      }
+    };
+
+    es.onerror = () => {
+      console.warn("SSE disconnected");
+    };
+
+    return () => es.close();
+  }, [revalidator]);
+
+  /* 🔄 Sync state when loader updates */
+  useEffect(() => {
+    setRows(installers);
+  }, [installers]);
 
   async function toggleStatus(id, current) {
     const next = current === "approved" ? "rejected" : "approved";
