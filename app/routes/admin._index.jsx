@@ -9,9 +9,6 @@ export async function loader() {
   });
 
   return { installers };
-  // return new Response(JSON.stringify({ installers }), {
-  //   headers: { "Content-Type": "application/json" },
-  // });
 }
 
 export async function action({ request }) {
@@ -48,13 +45,11 @@ export default function AdminDashboard() {
   /* 🔔 SSE LISTENER */
   useEffect(() => {
     const es = new EventSource("/api/admin/events");
-    console.log("Connecting to admin SSE...", es);
 
     es.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log("Received SSE event:", data);
       if (data.event === "installer.created") {
-        console.log("New installer arrived", data);
+        // console.log("New installer arrived", data);
 
         setNotification(`🆕 New installer: ${data.installer.fullName}`);
 
@@ -78,37 +73,27 @@ export default function AdminDashboard() {
     setRows(installers);
   }, [installers]);
 
-  // // Show toast notification for new installers
-  // useEffect(() => {
-  //   const es = new EventSource("/admin/events");
+  // async function toggleStatus(id, current) {
+  //   const next = current === "approved" ? "rejected" : "approved";
 
-  //   es.addEventListener("installer.created", (e) => {
-  //     const installer = JSON.parse(e.data);
-
-  //     setNotification(
-  //       `🆕 New installer: ${installer.fullName} (${installer.city})`,
-  //     );
-
-  //     // optional: auto-clear after 5s
-  //     setTimeout(() => setNotification(null), 5000);
-
-  //     // optional: refresh list instantly
-  //     window.location.reload();
+  //   await fetch("/admin", {
+  //     method: "POST",
+  //     body: new URLSearchParams({ id, status: next }),
   //   });
 
-  //   return () => es.close();
-  // }, []);
+  //   setRows((prev) =>
+  //     prev.map((r) => (r.id === id ? { ...r, status: next } : r)),
+  //   );
+  // }
 
-  async function toggleStatus(id, current) {
-    const next = current === "approved" ? "rejected" : "approved";
-
+  async function toggleStatusNew(id, nextStatus) {
     await fetch("/admin", {
       method: "POST",
-      body: new URLSearchParams({ id, status: next }),
+      body: new URLSearchParams({ id, status: nextStatus }),
     });
 
     setRows((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, status: next } : r)),
+      prev.map((r) => (r.id === id ? { ...r, status: nextStatus } : r)),
     );
   }
 
@@ -133,26 +118,46 @@ export default function AdminDashboard() {
             </div>
 
             <div className="flex items-center gap-3">
-              <button
+              {/* <button
                 onClick={() => toggleStatus(i.id, i.status)}
                 className={`px-3 py-1 rounded text-white ${
                   i.status === "approved" ? "bg-red-600" : "bg-green-600"
                 }`}
               >
                 {i.status === "approved" ? "Reject" : "Approve"}
-              </button>
-              {/* <button
-                onClick={() => toggleStatus(i.id, i.status)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200
-                  ${i.status === "approved" ? "bg-green-600" : "bg-gray-300"}
-                `}
-              >
-                <span
-                  className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform duration-200
-                    ${i.status === "approved" ? "translate-x-5" : "translate-x-1"}
-                  `}
-                />
               </button> */}
+
+              <div className="inline-flex rounded overflow-hidden border border-gray-300">
+                {/* Approve button */}
+                <button
+                  onClick={() => toggleStatusNew(i.id, "approved")}
+                  disabled={i.status === "approved"}
+                  className={`px-4 py-1 text-white text-sm transition
+                    ${
+                      i.status === "approved"
+                        ? "bg-green-700 cursor-not-allowed opacity-60"
+                        : "bg-green-600 hover:bg-green-700"
+                    }
+                  `}
+                >
+                  Approve
+                </button>
+
+                {/* Reject button */}
+                <button
+                  onClick={() => toggleStatusNew(i.id, "rejected")}
+                  disabled={i.status === "rejected"}
+                  className={`px-4 py-1 text-white text-sm transition
+                    ${
+                      i.status === "rejected"
+                        ? "bg-red-700 cursor-not-allowed opacity-60"
+                        : "bg-red-600 hover:bg-red-700"
+                    }
+                  `}
+                >
+                  Reject
+                </button>
+              </div>
 
               <a
                 href={`/admin/download/${i.id}`}
@@ -160,9 +165,6 @@ export default function AdminDashboard() {
               >
                 Download Docs
               </a>
-              {/* <a href={`/api/admin/download/${i.id}/edition18`}>18th Cert</a>{" "}
-              <a href={`/api/admin/download/${i.id}/ozev`}>OZEV</a>{" "}
-              <a href={`/api/admin/download/${i.id}/insurance`}>Insurance</a> */}
             </div>
           </div>
         ))}

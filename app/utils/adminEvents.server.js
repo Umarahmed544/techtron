@@ -6,8 +6,6 @@ export function validateWebhook(secret) {
 
 // Notify admin of new installer registration
 export async function notifyAdmin(installer) {
-  console.log("Notifying admin of new installer:", installer.id);
-  console.log("process.env.ADMIN_WEBHOOK_URL:", process.env.ADMIN_WEBHOOK_URL);
   await fetch(process.env.ADMIN_WEBHOOK_URL, {
     method: "POST",
     headers: {
@@ -28,7 +26,6 @@ export async function notifyAdmin(installer) {
     }),
   })
     .then((res) => {
-      console.log("Admin webhook response:", res.status);
       if (!res.ok) {
         throw new Error(`Webhook failed: ${res.statusText}`);
       }
